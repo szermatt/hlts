@@ -1,5 +1,16 @@
-;; -*- lexical-binding: t -*-
-;;; hlts.el -- Highlight symbol at point
+;;; hlts.el --- Highlight symbol at point  -*- lexical-binding: t -*-
+
+;; Copyright (C) 2020 Stephane Zermatten
+
+;; Author: Stephane Zermatten <szermatt@gmail.com>
+;; Maintainer: Stephane Zermatten <szermatt@gmail.com>
+;; Version: 0.1
+;; Keywords: symbol highlight font-lock
+;; URL: http://github.com/szermatt/hlts
+;; Package-Requires: ((emacs "26.1"))
+
+
+;;; Commentary:
 ;;
 ;; This package highlights the symbol at point in the current buffer
 ;; if it appears more than once on the screen. Symbols are highlighted
@@ -218,3 +229,5 @@ the matches rejected by `hlts--disabled-at-point'."
     found))
 
 (provide 'hlts)
+
+;;; hlts.el ends here
