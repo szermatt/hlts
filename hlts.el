@@ -30,6 +30,8 @@
 ;; slowdowns when displaying very large buffers, as only the visible
 ;; area of the buffer matters. It leaves font-lock's operations alone.
 
+;;; Code:
+
 (defgroup hlts nil
   "Highlight symbol under point."
   :prefix "hlts-" :group 'editing)
@@ -46,8 +48,10 @@
   "Idle timer for auto-highlight.")
 
 (defcustom hlts-idle-timeout 0.25
-  "Number of seconds of idle time needed before automatically
-highlight the symbol under point."
+  "Delay before highlighting the symbol at point.
+
+This sets the number of seconds of idle time needed before
+updating the symbol highlights."
   :type 'number
   :group 'hlts
   :set (lambda (var value)
@@ -108,14 +112,14 @@ regions, based on font lock."
     (setq hlts--timer nil)))
 
 (defun hlts--set-timer ()
-  "Sets or resets the idle timer configured by `hlts-idle-timeout'."
+  "Set or reset the idle timer configured by `hlts-idle-timeout'."
   (hlts--clear-timer)
   (setq hlts--timer
         (run-with-idle-timer
          hlts-idle-timeout 'repeat 'hlts--maybe-on)))
 
 (defun hlts--update-timer ()
-  "Updates the timer, if it already exists."
+  "Update the timer, if it already exists."
   (if hlts--timer (hlts--set-timer)))
 
 (defun hlts--maybe-on ()
@@ -129,12 +133,12 @@ regions, based on font lock."
         (hlts--on bounds)))))
 
 (defun hlts--disabled-at-point (pos)
-  "Checks whether highlighting should be disabled at POS."
+  "Check whether highlighting should be disabled at POS."
   (memq (get-char-property pos 'face)
         hlts-disable-for-faces))
 
 (defun hlts--on (bounds)
-  "Highlights the text within BOUNDS.
+  "Highlight the text within BOUNDS.
 
 Highlighting applies to all windows showing the current buffer."
   (let ((symbol (buffer-substring-no-properties
@@ -159,7 +163,7 @@ Highlighting applies to all windows showing the current buffer."
             (overlay-put overlay 'priority hlts-overlay-priority)))))))
 
 (defun hlts--post-command ()
-  "Checks the current highlight, disable it if not appropriate anymore."
+  "Check the current highlight, disable it if not appropriate anymore."
   (let ((c hlts--current))
     (when (and c
                (or (not hlts-mode)
@@ -173,19 +177,20 @@ Highlighting applies to all windows showing the current buffer."
       (hlts--off))))
 
 (defun hlts--window-size-change (frame)
-  "Re-compute any highlight, as the window size might have changed."
+  "Re-compute any highlight in FRAME, as the window size might have changed."
   (let ((c hlts--current))
     (when (and c (get-buffer-window-list (hlts--d-buffer c) nil frame))
       (run-with-idle-timer 0 nil 'hlts--refresh))))
 
 (defun hlts--refresh ()
-  "Refresh the current highlight, because the window sizes might have
-changed."
+  "Refresh the current highlight.
+
+This should be called wheneven window sizes might have changed."
   (hlts--off)
   (hlts--maybe-on))
 
 (defun hlts--off ()
-  "Turn off highlights."
+  "Turn off symbol highlighting."
   (let ((c hlts--current))
     (when c
       (setq hlts--current nil)
@@ -193,7 +198,7 @@ changed."
         (delete-overlay overlay)))))
 
 (defun hlts--regions ()
-  "Returns a list of regions to look for highlights.
+  "Return a list of regions to look for symbols to highlight.
 
 This returns the visible regions of the current buffer."
   (mapcar
@@ -202,7 +207,7 @@ This returns the visible regions of the current buffer."
    (get-buffer-window-list nil nil t)))
 
 (defun hlts--search (regions regexp)
-  "Searches in REGIONS for REGEXP.
+  "Search in REGIONS for REGEXP.
 
 Returns the end position of all matches found, after weeding out
 the matches rejected by `hlts--disabled-at-point'."
@@ -229,5 +234,4 @@ the matches rejected by `hlts--disabled-at-point'."
     found))
 
 (provide 'hlts)
-
 ;;; hlts.el ends here
