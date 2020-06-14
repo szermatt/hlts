@@ -11,14 +11,22 @@ This macro overwrites relevant flags and options, creates a temp
 buffer in emacs-lisp mode and enables the hlts minor mode."
   `(progn ;;save-window-excursion
      (let ((hlts-idle-timeout 0.0)
-           (hlts-disable-for-faces '(font-lock-string-face))
+           (hlts-disable-for-faces '(font-lock-keyword-face
+                                       font-lock-type-face
+                                       font-lock-bultin-face
+                                       font-lock-preprocessor-face
+                                       font-lock-comment-face
+                                       font-lock-string-face
+                                       font-lock-doc-face))
            (hlts-overlay-priority 0)
            (emacs-lisp-mode-hook nil))
        (ert-with-test-buffer ()
          (display-buffer (current-buffer))
          (emacs-lisp-mode)
          (hlts-mode 1)
-         ,@body))))
+         (unwind-protect
+             (progn ,@body))
+         (hlts-mode -1)))))
   
 (defun test-hlts-text-with-face (start end face)
   "Return text region from START and END with FACE highlighted.
