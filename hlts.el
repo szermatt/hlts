@@ -124,7 +124,7 @@ regions, based on font lock."
 
 (defun hlts--maybe-on ()
   "Highlight symbol at point, if appropriate."
-  (when (and (null hlts--current)
+  (when (and (null (hlts--get-current))
              hlts-mode
              (not (hlts--disabled-at-point (point))))
     (hlts--off)
@@ -164,7 +164,7 @@ Highlighting applies to all windows showing the current buffer."
 
 (defun hlts--post-command ()
   "Check the current highlight, disable it if not appropriate anymore."
-  (let ((c hlts--current))
+  (let ((c (hlts--get-current)))
     (when (and c
                (or (not hlts-mode)
                    (not (eq (current-buffer) (hlts--d-buffer c)))
@@ -178,7 +178,7 @@ Highlighting applies to all windows showing the current buffer."
 
 (defun hlts--window-size-change (frame)
   "Re-compute any highlight in FRAME, as the window size might have changed."
-  (let ((c hlts--current))
+  (let ((c (hlts--get-current)))
     (when (and c (get-buffer-window-list (hlts--d-buffer c) nil frame))
       (run-with-idle-timer 0 nil 'hlts--refresh))))
 
@@ -189,9 +189,18 @@ This should be called wheneven window sizes might have changed."
   (hlts--off)
   (hlts--maybe-on))
 
+(defun hlts--get-current ()
+  "Return the current highlight, if any.
+
+Ignores highlights of killed buffers."
+  (when (and hlts--current
+             (not (buffer-live-p (hlts--d-buffer hlts--current))))
+    (setq hlts--current nil))
+  hlts--current)
+
 (defun hlts--off ()
   "Turn off symbol highlighting."
-  (let ((c hlts--current))
+  (let ((c (hlts--get-current)))
     (when c
       (setq hlts--current nil)
       (dolist (overlay (hlts--d-overlays c))
