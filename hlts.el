@@ -202,8 +202,9 @@ Ignores highlights of killed buffers."
   (let ((c (hlts--get-current)))
     (when c
       (setq hlts--current nil)
-      (dolist (overlay (hlts--d-overlays c))
-        (delete-overlay overlay)))))
+      (with-current-buffer (hlts--d-buffer c)
+        (dolist (overlay (hlts--d-overlays c))
+          (delete-overlay overlay))))))
 
 (defun hlts--regions ()
   "Return a list of regions to look for symbols to highlight.
