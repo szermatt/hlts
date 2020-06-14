@@ -2,11 +2,29 @@
 
 (ert-deftest test-hlts-highlight ()
   (test-hlts-env
-   (insert "(let ((hello)) (setq hello 1))")
-   (goto-char (point-min))
-   (search-forward "hello")
-   (goto-char (match-beginning 0))
-   (ert-run-idle-timers)
+   (test-hlts-setup "(let ((hello)) (setq hello 1))")
+   (test-hlts-simulate-command '(test-hlts-goto-nth "hello"))
+   (should
+    (equal
+     (test-hlts-text-with-face (point-min) (point-max) 'hlts-face)
+     "(let (([hello])) (setq [hello] 1))"))))
+
+(ert-deftest test-hlts-unhighlight-after-move ()
+  (test-hlts-env
+   (test-hlts-setup "(let ((hello)) (setq hello 1))")
+   (test-hlts-simulate-command '(test-hlts-goto-nth "hello"))
+   (test-hlts-simulate-command '(left-char))
+   (should
+    (equal
+     (test-hlts-text-with-face (point-min) (point-max) 'hlts-face)
+     "(let ((hello)) (setq hello 1))"))))
+
+(ert-deftest test-hlts-rehighlight-after-move ()
+  (test-hlts-env
+   (test-hlts-setup "(let ((hello)) (setq hello 1))")
+   (test-hlts-simulate-command '(test-hlts-goto-nth "hello"))
+   (test-hlts-simulate-command '(left-char))
+   (test-hlts-simulate-command '(right-char))
    (should
     (equal
      (test-hlts-text-with-face (point-min) (point-max) 'hlts-face)
@@ -14,11 +32,8 @@
 
 (ert-deftest test-hlts-single-symbol ()
   (test-hlts-env
-   (insert "(let ((hello)) (setq not-hello 1))")
-   (goto-char (point-min))
-   (search-forward "hello")
-   (goto-char (match-beginning 0))
-   (ert-run-idle-timers)
+   (test-hlts-setup "(let ((hello)) (setq not-hello 1))")
+   (test-hlts-simulate-command '(test-hlts-goto-nth "hello"))
    (should
     (equal
      (test-hlts-text-with-face (point-min) (point-max) 'hlts-face)
@@ -26,15 +41,11 @@
 
 (ert-deftest test-hlts-ignore-comments-and-strings ()
   (test-hlts-env
-   (insert "(let ((hello))
+   (test-hlts-setup "(let ((hello))
 ;; say hello 
 (setq hello \"hello\")
 (message hello))")
-   (font-lock-fontify-syntactically-region (point-min) (point-max))
-   (goto-char (point-min))
-   (search-forward "hello")
-   (goto-char (match-beginning 0))
-   (ert-run-idle-timers)
+   (test-hlts-simulate-command '(test-hlts-goto-nth "hello"))
    (should
     (equal
      (test-hlts-text-with-face (point-min) (point-max) 'hlts-face)
