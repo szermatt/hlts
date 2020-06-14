@@ -35,7 +35,7 @@
   :prefix "hlts-" :group 'editing)
 
 (defface hlts-face
-  '((((class color)) (:background "yellow" :foreground "black")))
+  '((t :inherit highlight))
   "Face used to highlight the symbol under point."
   :group 'hlts)
 
