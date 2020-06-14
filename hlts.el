@@ -62,7 +62,6 @@ updating the symbol highlights."
 
 (defcustom hlts-disable-for-faces '(font-lock-keyword-face
                                        font-lock-type-face
-                                       font-lock-bultin-face
                                        font-lock-preprocessor-face
                                        font-lock-comment-face
                                        font-lock-string-face
