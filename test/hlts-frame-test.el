@@ -10,9 +10,9 @@
     (equal
      (test-hlts-text-with-face (point-min) (point-max) 'hlts-face)
      (concat
-      (test-hlts-hellos 1 7 t)
+      (test-hlts-hellos 1 (1- (window-height)) t)
       "\n"
-      (test-hlts-hellos 8 20))))))
+      (test-hlts-hellos (window-height) 20))))))
 
 (ert-deftest test-hlts-frame-multiple-windows ()
   "A buffer might have more than one visible region."
