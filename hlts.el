@@ -124,8 +124,8 @@ regions, based on font lock."
 
 (defun hlts--maybe-on ()
   "Highlight symbol at point, if appropriate."
-  (when (and (null (hlts--get-current))
-             hlts-mode
+  (when (and hlts-mode
+             (null (hlts--get-current))
              (not (hlts--disabled-at-point (point))))
     (hlts--off)
     (let ((bounds (bounds-of-thing-at-point 'symbol)))
