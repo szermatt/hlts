@@ -65,6 +65,7 @@ buffer in emacs-lisp mode and enables the hlts minor mode."
            (emacs-lisp-mode-hook nil))
        (ert-with-test-buffer ()
          (with-selected-window (display-buffer (current-buffer))
+           (transient-mark-mode 1)
            (delete-other-windows)
            ;; emacs-lisp-mode provides configuration for font-lock.
            (emacs-lisp-mode)

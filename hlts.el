@@ -96,10 +96,14 @@ regions, based on font lock."
       (progn
         (hlts--set-timer)
         (add-hook 'post-command-hook 'hlts--post-command nil t)
+        (add-hook 'activate-mark-hook 'hlts--post-command nil t)
+        (add-hook 'deactivate-mark-hook 'hlts--post-command nil t)
         (add-hook 'window-size-change-functions 'hlts--window-size-change))
     ;; off
     (hlts--off)
     (remove-hook 'post-command-hook 'hlts--post-command t)
+    (remove-hook 'activate-mark-hook 'hlts--post-command t)
+    (remove-hook 'deactivate-mark-hook 'hlts--post-command t)
     (when (not (hlts--turned-on-anywhere-p))
       (hlts--clear-timer)
       (remove-hook 'window-size-change-functions 'hlts--window-size-change))))
@@ -125,6 +129,7 @@ regions, based on font lock."
   "Highlight symbol at point, if appropriate."
   (when (and hlts-mode
              (null (hlts--get-current))
+             (not mark-active)
              (not (hlts--disabled-at-point (point))))
     (hlts--off)
     (let ((bounds (bounds-of-thing-at-point 'symbol)))
@@ -166,6 +171,7 @@ Highlighting applies to all windows showing the current buffer."
   (let ((c (hlts--get-current)))
     (when (and c
                (or (not hlts-mode)
+                   mark-active
                    (not (eq (current-buffer) (hlts--d-buffer c)))
                    (< (point) (hlts--d-symbol-start c))
                    (>= (point) (hlts--d-symbol-end c))

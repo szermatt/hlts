@@ -69,5 +69,30 @@
 (setq [hello] \"hello\")
 (message [hello]))"))))
 
+(ert-deftest test-hlts-when-mark-activated ()
+  "Disable highlight when the mark is activated."
+  (test-hlts-env
+   (test-hlts-setup "(let ((hello)) (setq hello 1))")
+   (test-hlts-simulate-command '(test-hlts-goto-nth "hello"))
+   (test-hlts-simulate-command '(mark-word))
+   (should
+    (equal
+     (test-hlts-text-with-face (point-min) (point-max) 'hlts-face)
+     "(let ((hello)) (setq hello 1))"))))
+
+(ert-deftest test-hlts-when-mark-inactivated ()
+  "Re-enable highlight when the mark is deactivated."
+  (test-hlts-env
+   (test-hlts-setup "(let ((hello)) (setq hello 1))")
+   (test-hlts-simulate-command '(test-hlts-goto-nth "hello"))
+   (test-hlts-simulate-command '(mark-word))
+   (defun test-hlts-deactivate-mark ()
+     (interactive) (deactivate-mark))
+   (test-hlts-simulate-command '(test-hlts-deactivate-mark))
+   (run-hooks 'deactivate-mark-hook)
+   (should
+    (equal
+     (test-hlts-text-with-face (point-min) (point-max) 'hlts-face)
+     "(let (([hello])) (setq [hello] 1))"))))
 
 ;;; hlts-test.el ends here
